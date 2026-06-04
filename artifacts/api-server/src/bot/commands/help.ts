@@ -13,8 +13,8 @@ export async function handleHelp(
     `\`${PREFIX}kick <user_id> [reason]\` — Kick a user`,
     `\`${PREFIX}rank <@user> <@role>\` — Assign a role`,
     `\`${PREFIX}unrank <@user>\` — Remove all roles (keeps Random)`,
-    `\`${PREFIX}ticket [topic]\` — Open a ticket`,
-    `\`${PREFIX}ticket channel <#channel>\` — Send ticket panel to a channel`,
+    `\`${PREFIX}ticket <reason>\` — Open a ticket`,
+    `\`${PREFIX}ticket channel <#channel>\` — Post the ticket info panel in a channel`,
     `\`${PREFIX}close [reason]\` — Close the current ticket`,
     `\`${PREFIX}help\` — Show this message`,
   ].join("\n");
