@@ -17,7 +17,7 @@ export async function handleUnrank(message: APIMessage, args: string[], api: Api
 
   if (!targetId) {
     await api.channels.createMessage(message.channel_id, {
-      content: "❌ Usage: `+unrank <@user>`",
+      content: "Usage: `+unrank <@user>`",
     });
     return;
   }
@@ -30,16 +30,13 @@ export async function handleUnrank(message: APIMessage, args: string[], api: Api
 
     if (!member) {
       await api.channels.createMessage(message.channel_id, {
-        content: "❌ Could not find that user in the server.",
+        content: "Could not find that user in the server.",
       });
       return;
     }
 
-    // Find the Random role to keep
     const randomRole = allRoles.find((r) => r.name.toLowerCase().includes("random"));
     const keepIds = new Set(randomRole ? [randomRole.id] : []);
-
-    // Remove every role the member has except Random (and @everyone which can't be removed)
     const toRemove = member.roles.filter((id) => !keepIds.has(id));
 
     await Promise.all(
@@ -52,12 +49,12 @@ export async function handleUnrank(message: APIMessage, args: string[], api: Api
 
     const keptText = randomRole ? ` (kept **${randomRole.name}**)` : "";
     await api.channels.createMessage(message.channel_id, {
-      content: `✅ Removed all roles from <@${targetId}>${keptText}.`,
+      content: `Removed all roles from <@${targetId}>${keptText}.`,
     });
   } catch (err) {
     logger.warn({ err }, "Failed to unrank user");
     await api.channels.createMessage(message.channel_id, {
-      content: "❌ Could not unrank that user. Make sure I have the **Manage Roles** permission.",
+      content: "Could not unrank that user. Make sure I have the **Manage Roles** permission.",
     });
   }
 }

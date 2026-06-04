@@ -13,7 +13,7 @@ export async function handleBl(message: APIMessage, args: string[], api: Api) {
   const guildId = getEnv("FLUXER_GUILD_ID");
   const targetId = args[0]?.replace(/[<@!>]/g, "");
   if (!targetId) {
-    await api.channels.createMessage(message.channel_id, { content: "❌ Usage: `+bl <user_id> [reason]`" });
+    await api.channels.createMessage(message.channel_id, { content: "Usage: `+bl <user_id> [reason]`" });
     return;
   }
 
@@ -30,12 +30,12 @@ export async function handleBl(message: APIMessage, args: string[], api: Api) {
     });
 
     await api.channels.createMessage(message.channel_id, {
-      content: `🔨 <@${targetId}> has been **blacklisted**. Reason: ${reason}`,
+      content: `<@${targetId}> has been blacklisted. Reason: ${reason}`,
     });
   } catch (err) {
     logger.warn({ err }, "Failed to ban user");
     await api.channels.createMessage(message.channel_id, {
-      content: `❌ Could not blacklist that user. Make sure I have the **Ban Members** permission and the user is in the server.`,
+      content: "Could not blacklist that user. Make sure I have the **Ban Members** permission and the user is in the server.",
     });
   }
 }

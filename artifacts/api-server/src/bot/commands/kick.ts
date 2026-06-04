@@ -11,7 +11,7 @@ export async function handleKick(message: APIMessage, args: string[], api: Api) 
   const guildId = getEnv("FLUXER_GUILD_ID");
   const targetId = args[0]?.replace(/[<@!>]/g, "");
   if (!targetId) {
-    await api.channels.createMessage(message.channel_id, { content: "❌ Usage: `+kick <user_id> [reason]`" });
+    await api.channels.createMessage(message.channel_id, { content: "Usage: `+kick <user_id> [reason]`" });
     return;
   }
 
@@ -20,12 +20,12 @@ export async function handleKick(message: APIMessage, args: string[], api: Api) 
   try {
     await api.guilds.removeMember(guildId, targetId, { reason });
     await api.channels.createMessage(message.channel_id, {
-      content: `👢 <@${targetId}> has been **kicked**. Reason: ${reason}`,
+      content: `<@${targetId}> has been kicked. Reason: ${reason}`,
     });
   } catch (err) {
     logger.warn({ err }, "Failed to kick user");
     await api.channels.createMessage(message.channel_id, {
-      content: `❌ Could not kick that user. Make sure I have the **Kick Members** permission and the user is in the server.`,
+      content: "Could not kick that user. Make sure I have the **Kick Members** permission and the user is in the server.",
     });
   }
 }

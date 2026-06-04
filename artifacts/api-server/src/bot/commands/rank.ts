@@ -17,16 +17,15 @@ export async function handleRank(message: APIMessage, args: string[], api: Api) 
 
   if (!targetId || !roleArg) {
     await api.channels.createMessage(message.channel_id, {
-      content: "❌ Usage: `+rank <@user> <@role>`",
+      content: "Usage: `+rank <@user> <@role>`",
     });
     return;
   }
 
-  // Accept a role mention <@&ROLE_ID> or a raw role ID
   const roleMentionMatch = roleArg.match(/^<@&(\d+)>$/) ?? roleArg.match(/^(\d+)$/);
   if (!roleMentionMatch) {
     await api.channels.createMessage(message.channel_id, {
-      content: "❌ Please mention a role directly: `+rank <@user> @role`",
+      content: "Please mention a role directly: `+rank <@user> @role`",
     });
     return;
   }
@@ -36,12 +35,12 @@ export async function handleRank(message: APIMessage, args: string[], api: Api) 
   try {
     await api.guilds.addRoleToMember(guildId, targetId, roleId);
     await api.channels.createMessage(message.channel_id, {
-      content: `✅ <@${targetId}> has been given <@&${roleId}>.`,
+      content: `<@${targetId}> has been given <@&${roleId}>.`,
     });
   } catch (err) {
     logger.warn({ err }, "Failed to assign role");
     await api.channels.createMessage(message.channel_id, {
-      content: `❌ Could not assign that role. Make sure I have the **Manage Roles** permission and my role is above the target role.`,
+      content: "Could not assign that role. Make sure I have the **Manage Roles** permission and my role is above the target role.",
     });
   }
 }

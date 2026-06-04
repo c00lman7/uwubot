@@ -15,7 +15,7 @@ export function registerGuildMemberAddHandler(client: Client) {
 
     const username = data.user?.username ?? "Unknown";
 
-    // ── Auto-role ──────────────────────────────────────────────────────────────
+    // Auto-role
     const autoRoleId = getEnv("AUTO_ROLE_ID");
     if (autoRoleId) {
       try {
@@ -25,19 +25,19 @@ export function registerGuildMemberAddHandler(client: Client) {
       }
     }
 
-    // ── Welcome message ────────────────────────────────────────────────────────
+    // Welcome message
     const welcomeChannelId = getEnv("WELCOME_CHANNEL_ID");
     if (welcomeChannelId) {
       try {
         await api.channels.createMessage(welcomeChannelId, {
-          content: `👋 Welcome to the server, <@${userId}>! Make sure to read the rules.`,
+          content: `Welcome to the server, <@${userId}>!`,
         });
       } catch (err) {
         logger.warn({ err }, "Failed to send welcome message");
       }
     }
 
-    // ── Invite tracking ────────────────────────────────────────────────────────
+    // Invite tracking
     const inviteLogChannelId = getEnv("INVITE_LOG_CHANNEL_ID");
     if (!inviteLogChannelId) return;
 
@@ -48,7 +48,6 @@ export function registerGuildMemberAddHandler(client: Client) {
         freshInvites as Array<{ code: string; uses: number | null; inviter?: { id: string } | null }>
       );
 
-      // Refresh cache with latest counts
       inviteCache.loadGuild(
         guildId,
         freshInvites as Array<{ code: string; uses: number | null; inviter?: { id: string } | null }>
@@ -57,21 +56,11 @@ export function registerGuildMemberAddHandler(client: Client) {
       const inviterId = result?.inviterId ?? null;
       const inviteCode = result?.code ?? null;
 
-      // Persist who invited this user
-      await db.insert(invitedBy).values({
-        guildId,
-        userId,
-        inviterId,
-        inviteCode,
-      });
+      await db.insert(invitedBy).values({ guildId, userId, inviterId, inviteCode });
 
-      let inviterMention = "an unknown link";
       let totalInvites = 0;
 
       if (inviterId) {
-        inviterMention = `<@${inviterId}>`;
-
-        // Upsert invite stats for the inviter
         const existing = await db
           .select()
           .from(inviteStats)
@@ -95,8 +84,8 @@ export function registerGuildMemberAddHandler(client: Client) {
       }
 
       const msg = inviterId
-        ? `📥 **${username}** was invited by ${inviterMention}. They now have **${totalInvites}** invite${totalInvites === 1 ? "" : "s"}!`
-        : `📥 **${username}** joined the server (invite source unknown).`;
+        ? `**${username}** was invited by <@${inviterId}>. They now have **${totalInvites}** invite${totalInvites === 1 ? "" : "s"}.`
+        : `**${username}** joined the server (invite source unknown).`;
 
       await api.channels.createMessage(inviteLogChannelId, { content: msg });
     } catch (err) {

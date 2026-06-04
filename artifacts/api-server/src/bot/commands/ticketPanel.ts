@@ -6,21 +6,17 @@ const TICKET_BUTTON_ID = "fluxer_open_ticket";
 
 type Api = {
   channels: {
-    createMessage: (
-      id: string,
-      opts: Record<string, unknown>
-    ) => Promise<unknown>;
+    createMessage: (id: string, opts: Record<string, unknown>) => Promise<unknown>;
   };
 };
 
 export async function handleTicketPanel(message: APIMessage, args: string[], api: Api) {
-  // Parse channel mention: <#CHANNEL_ID> or raw ID
   const chanArg = args[0];
   const channelIdMatch = chanArg?.match(/^<#(\d+)>$/) ?? chanArg?.match(/^(\d+)$/);
 
   if (!channelIdMatch) {
     await api.channels.createMessage(message.channel_id, {
-      content: "❌ Usage: `+ticket channel <#channel>`",
+      content: "Usage: `+ticket channel <#channel>`",
     });
     return;
   }
@@ -31,9 +27,8 @@ export async function handleTicketPanel(message: APIMessage, args: string[], api
     await api.channels.createMessage(targetChannelId, {
       embeds: [
         {
-          title: "🎫  Support Tickets",
-          description:
-            "Need help? Click the button below to open a ticket.\n\nA popup will appear asking for the reason — fill it in and a private channel will be created just for you.",
+          title: "Support Tickets",
+          description: "Click the button below to open a ticket. A popup will ask for your reason and a private channel will be created for you.",
           color: 0x5865f2,
           footer: { text: "One ticket per user at a time." },
         },
@@ -47,7 +42,6 @@ export async function handleTicketPanel(message: APIMessage, args: string[], api
               custom_id: TICKET_BUTTON_ID,
               label: "Open a Ticket",
               style: ButtonStyle.Primary,
-              emoji: { name: "🎫" },
             },
           ],
         },
@@ -55,12 +49,12 @@ export async function handleTicketPanel(message: APIMessage, args: string[], api
     });
 
     await api.channels.createMessage(message.channel_id, {
-      content: `✅ Ticket panel sent to <#${targetChannelId}>.`,
+      content: `Ticket panel sent to <#${targetChannelId}>.`,
     });
   } catch (err) {
     logger.warn({ err }, "Failed to send ticket panel");
     await api.channels.createMessage(message.channel_id, {
-      content: "❌ Could not send the ticket panel. Make sure I can send messages in that channel.",
+      content: "Could not send the ticket panel. Make sure I can send messages in that channel.",
     });
   }
 }
