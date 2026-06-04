@@ -16,6 +16,7 @@ export async function handleHelp(
     `\`${PREFIX}rank <@user> <@role>\` — Assign a role to a user`,
     `\`${PREFIX}unrank <@user>\` — Remove all roles (keeps Random)`,
     `\`${PREFIX}ticket [topic]\` — Open a support ticket *(everyone)*`,
+    `\`${PREFIX}ticket channel <#channel>\` — Send a ticket panel embed to a channel`,
     `\`${PREFIX}close [reason]\` — Close the current ticket channel`,
     `\`${PREFIX}help\` — Show this message`,
   ].join("\n");

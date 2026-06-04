@@ -8,6 +8,7 @@ import { handleKick } from "../commands/kick.js";
 import { handleRank } from "../commands/rank.js";
 import { handleUnrank } from "../commands/unrank.js";
 import { handleTicket, handleClose } from "../commands/ticket.js";
+import { handleTicketPanel } from "../commands/ticketPanel.js";
 import { handleHelp } from "../commands/help.js";
 import { logger } from "../../lib/logger.js";
 
@@ -66,7 +67,19 @@ export function registerMessageCreateHandler(client: Client) {
     }
 
     if (cmd === "ticket") {
-      await handleTicket(message, args, api as never);
+      // +ticket channel #channel → send panel embed (staff only)
+      if (args[0]?.toLowerCase() === "channel") {
+        if (!isStaff(allRoles, memberRoleIds)) {
+          await api.channels.createMessage(message.channel_id, {
+            content: "❌ You need the **Recruiter** rank or higher to send a ticket panel.",
+          });
+          return;
+        }
+        await handleTicketPanel(message, args.slice(1), api as never);
+      } else {
+        // +ticket [topic] → open ticket directly (everyone)
+        await handleTicket(message, args, api as never);
+      }
       return;
     }
 

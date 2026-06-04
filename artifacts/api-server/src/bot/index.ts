@@ -7,6 +7,7 @@ import { registerMessageCreateHandler } from "./handlers/messageCreate.js";
 import { registerGuildMemberAddHandler } from "./handlers/guildMemberAdd.js";
 import { registerInviteCreateHandler } from "./handlers/inviteCreate.js";
 import { registerInviteDeleteHandler } from "./handlers/inviteDelete.js";
+import { registerInteractionCreateHandler } from "./handlers/interactionCreate.js";
 import { logger } from "../lib/logger.js";
 
 export function startBot(token: string) {
@@ -28,6 +29,7 @@ export function startBot(token: string) {
   registerGuildMemberAddHandler(client);
   registerInviteCreateHandler(client);
   registerInviteDeleteHandler(client);
+  registerInteractionCreateHandler(client);
 
   gateway.connect().catch((err) => {
     logger.error({ err }, "Failed to connect to Fluxer gateway");
