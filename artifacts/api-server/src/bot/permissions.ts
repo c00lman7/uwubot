@@ -12,7 +12,7 @@ export interface GuildRole {
  * Uses role position — no hardcoded name matching.
  */
 export function isStaff(allRoles: GuildRole[], memberRoleIds: string[]): boolean {
-  const staffRole = allRoles.find((r) => r.name.toLowerCase() === MIN_STAFF_ROLE_NAME);
+  const staffRole = allRoles.find((r) => r.name.toLowerCase().includes(MIN_STAFF_ROLE_NAME));
   if (!staffRole) return false;
 
   const memberRoles = allRoles.filter((r) => memberRoleIds.includes(r.id));
@@ -24,7 +24,7 @@ export function isStaff(allRoles: GuildRole[], memberRoleIds: string[]): boolean
  * Admins can post invite links freely.
  */
 export function isAdmin(allRoles: GuildRole[], memberRoleIds: string[]): boolean {
-  const adminRole = allRoles.find((r) => r.name.toLowerCase() === "lieutenant");
+  const adminRole = allRoles.find((r) => r.name.toLowerCase().includes("lieutenant"));
   if (!adminRole) return false;
 
   const memberRoles = allRoles.filter((r) => memberRoleIds.includes(r.id));

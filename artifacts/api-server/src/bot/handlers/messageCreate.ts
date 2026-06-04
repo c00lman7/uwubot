@@ -28,13 +28,6 @@ export function registerMessageCreateHandler(client: Client) {
       ]);
       allRoles = roles;
       memberRoleIds = (member?.roles ?? []) as string[];
-      logger.info(
-        {
-          memberRoleIds,
-          roleNames: allRoles.map((r) => ({ id: r.id, name: r.name, pos: r.position })),
-        },
-        "DEBUG: roles fetched"
-      );
     } catch (err) {
       logger.warn({ err }, "Could not fetch guild roles or member");
     }
