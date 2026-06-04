@@ -6,6 +6,7 @@ import { handleBl } from "../commands/bl.js";
 import { handleUnbl } from "../commands/unbl.js";
 import { handleKick } from "../commands/kick.js";
 import { handleRank } from "../commands/rank.js";
+import { handleUnrank } from "../commands/unrank.js";
 import { handleTicket, handleClose } from "../commands/ticket.js";
 import { handleHelp } from "../commands/help.js";
 import { logger } from "../../lib/logger.js";
@@ -95,6 +96,9 @@ export function registerMessageCreateHandler(client: Client) {
         break;
       case "rank":
         await handleRank(message, args, api as never);
+        break;
+      case "unrank":
+        await handleUnrank(message, args, api as never);
         break;
       default:
         await api.channels.createMessage(message.channel_id, {
