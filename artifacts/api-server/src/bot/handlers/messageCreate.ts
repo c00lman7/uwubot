@@ -1,7 +1,7 @@
 import type { Client } from "@discordjs/core";
 import { GatewayDispatchEvents } from "@discordjs/core";
 import { PREFIX, INVITE_PATTERNS, getEnv } from "../config.js";
-import { isStaff, isAdmin } from "../permissions.js";
+import { isStaff, isAdmin, type GuildRole } from "../permissions.js";
 import { handleBl } from "../commands/bl.js";
 import { handleUnbl } from "../commands/unbl.js";
 import { handleKick } from "../commands/kick.js";
@@ -12,27 +12,31 @@ import { logger } from "../../lib/logger.js";
 
 export function registerMessageCreateHandler(client: Client) {
   client.on(GatewayDispatchEvents.MessageCreate, async ({ api, data: message }) => {
-    // Ignore bots
     if (message.author.bot) return;
 
     const content = message.content ?? "";
     const guildId = message.guild_id ?? getEnv("FLUXER_GUILD_ID");
+    if (!guildId) return;
+
+    // Fetch guild roles once — reused for both link check and command auth
+    let allRoles: GuildRole[] = [];
+    try {
+      allRoles = (await api.guilds.getRoles(guildId)) as GuildRole[];
+    } catch (err) {
+      logger.warn({ err }, "Could not fetch guild roles");
+    }
+
+    // Member role IDs (present on guild message events)
+    const memberRoleIds: string[] = (message.member?.roles ?? []) as string[];
 
     // ── Anti-invite-link detection ────────────────────────────────────────────
-    const hasLink = INVITE_PATTERNS.some((re) => re.test(content));
-    if (hasLink) {
-      // Fetch member to check if they're admin
-      let memberRoleNames: string[] = [];
-      try {
-        const member = await api.guilds.getMember(guildId, message.author.id);
-        const roles = await api.guilds.getRoles(guildId);
-        const roleMap = new Map(roles.map((r) => [r.id, r.name]));
-        memberRoleNames = (member?.roles ?? []).map((id) => roleMap.get(id) ?? "");
-      } catch (err) {
-        logger.warn({ err }, "Could not fetch member for link check");
-      }
+    const hasLink = INVITE_PATTERNS.some((re) => {
+      re.lastIndex = 0;
+      return re.test(content);
+    });
 
-      if (!isAdmin(memberRoleNames)) {
+    if (hasLink) {
+      if (!isAdmin(allRoles, memberRoleIds)) {
         try {
           await api.channels.deleteMessage(message.channel_id, message.id);
           await api.channels.createMessage(message.channel_id, {
@@ -52,30 +56,17 @@ export function registerMessageCreateHandler(client: Client) {
     const cmd = rawCmd?.toLowerCase();
     if (!cmd) return;
 
-    // Help is public
     if (cmd === "help") {
       await handleHelp(message, {} as never, api as never);
       return;
     }
 
-    // Ticket is public (anyone can open one)
     if (cmd === "ticket") {
       await handleTicket(message, args, api as never);
       return;
     }
 
-    // All other commands require Recruiter+ rank
-    let memberRoleNames: string[] = [];
-    try {
-      const member = await api.guilds.getMember(guildId, message.author.id);
-      const roles = await api.guilds.getRoles(guildId);
-      const roleMap = new Map(roles.map((r) => [r.id, r.name]));
-      memberRoleNames = (member?.roles ?? []).map((id) => roleMap.get(id) ?? "");
-    } catch (err) {
-      logger.warn({ err }, "Could not fetch member for permission check");
-    }
-
-    const staffStatus = isStaff(memberRoleNames);
+    const staffStatus = isStaff(allRoles, memberRoleIds);
 
     if (cmd === "close") {
       await handleClose(message, args, api as never, staffStatus);
