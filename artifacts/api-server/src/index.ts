@@ -1,5 +1,6 @@
 import app from "./app";
 import { logger } from "./lib/logger";
+import { startBot } from "./bot/index.js";
 
 const rawPort = process.env["PORT"];
 
@@ -23,3 +24,11 @@ app.listen(port, (err) => {
 
   logger.info({ port }, "Server listening");
 });
+
+// Start Fluxer bot if token is provided
+const botToken = process.env["FLUXER_BOT_TOKEN"];
+if (botToken) {
+  startBot(botToken);
+} else {
+  logger.warn("FLUXER_BOT_TOKEN not set — bot will not start");
+}
