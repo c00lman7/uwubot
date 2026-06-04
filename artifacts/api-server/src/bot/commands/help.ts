@@ -13,7 +13,7 @@ export async function handleHelp(
     `\`${PREFIX}bl <user_id> [reason]\` — Blacklist (ban) a user`,
     `\`${PREFIX}unbl <user_id>\` — Remove a blacklist (unban)`,
     `\`${PREFIX}kick <user_id> [reason]\` — Kick a user`,
-    `\`${PREFIX}rank <user_id> <role name>\` — Assign a role to a user`,
+    `\`${PREFIX}rank <@user> <@role>\` — Assign a role to a user`,
     `\`${PREFIX}ticket [topic]\` — Open a support ticket *(everyone)*`,
     `\`${PREFIX}close [reason]\` — Close the current ticket channel`,
     `\`${PREFIX}help\` — Show this message`,
