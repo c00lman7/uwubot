@@ -18,16 +18,19 @@ export function registerMessageCreateHandler(client: Client) {
     const guildId = message.guild_id ?? getEnv("FLUXER_GUILD_ID");
     if (!guildId) return;
 
-    // Fetch guild roles once — reused for both link check and command auth
+    // Fetch guild roles + member roles in parallel
     let allRoles: GuildRole[] = [];
+    let memberRoleIds: string[] = [];
     try {
-      allRoles = (await api.guilds.getRoles(guildId)) as GuildRole[];
+      const [roles, member] = await Promise.all([
+        api.guilds.getRoles(guildId) as Promise<GuildRole[]>,
+        api.guilds.getMember(guildId, message.author.id),
+      ]);
+      allRoles = roles;
+      memberRoleIds = (member?.roles ?? []) as string[];
     } catch (err) {
-      logger.warn({ err }, "Could not fetch guild roles");
+      logger.warn({ err }, "Could not fetch guild roles or member");
     }
-
-    // Member role IDs (present on guild message events)
-    const memberRoleIds: string[] = (message.member?.roles ?? []) as string[];
 
     // ── Anti-invite-link detection ────────────────────────────────────────────
     const hasLink = INVITE_PATTERNS.some((re) => {
