@@ -24,7 +24,7 @@ export async function handleTicketPanel(message: APIMessage, args: string[], api
   const targetChannelId = channelIdMatch[1]!;
 
   try {
-    await api.channels.createMessage(targetChannelId, {
+    const sent = await api.channels.createMessage(targetChannelId, {
       embeds: [
         {
           title: "Support Tickets",
@@ -46,7 +46,9 @@ export async function handleTicketPanel(message: APIMessage, args: string[], api
           ],
         },
       ],
-    });
+    }) as { id: string; components?: unknown[] };
+
+    logger.info({ messageId: sent.id, componentsBack: sent.components }, "Ticket panel sent");
 
     await api.channels.createMessage(message.channel_id, {
       content: `Ticket panel sent to <#${targetChannelId}>.`,
